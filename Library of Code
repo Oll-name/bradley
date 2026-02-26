@@ -1,0 +1,99 @@
+
+#include <iostream>
+#include "SCServo.h"   <---Servo motor and C++ input output library for Pi
+
+SMS_STS sm_st;    <----- Put at the start of the code in Initialisation.
+
+int main(int argc, char **argv){   <---- Main function definition
+	
+	if(argc<2){
+        std::cout<< "argc error!"<<std::endl; <---- Unknown function, but important
+        return 0;
+	}
+	etc......
+
+
+}
+
+
+int Pos;   <---- Define Interger Pos
+
+std::cout<<"Message here"<<std::endl;    <----- Print to command prompt on new line
+
+if(!sm_st.begin(115200, argv[1])){
+        std::cout<<"Failed to init sms/sts motor!"<<std::endl;      <----Initialises the serial connection w
+        return 0;							 baud rate of 115200
+    }
+
+
+
+
+usleep(2187*1000); 		<---- Sleep in Microseconds when rotating V = speed, a = acceleration, p = position [(P1-P0)/V]*1000+[V/(A*100)]*1000
+  
+sm_st.end();
+	return 1;   <---End of Script, close motor connection
+}
+
+
+
+sm_st.WritePosEx(0xfe, 4095, 2400, 50);    <------ Writes a position to a servo motor
+						   Parameter 1: servo ID (e.g. 1,2,3,4..... etc, or 0xfe for broadcast all)
+						   Parameter 2: Desired angle (0-4095) only for single rotation input)
+						   Parameter 3: Speed (0~min -2400~max) 
+						   Parameter 4: Acceleration (0~min -50~max) 
+
+sm_st.CalibrationOfs(1);    <----- Runs calibration libary (Unknown function)
+
+
+
+
+if(sm_st.FeedBack(2)!=-1){    <---- () represents the servo motor being interigated
+			Pos = sm_st.ReadPos(-1);   <---- Sets Pos variable to the current position read from servo
+			Speed = sm_st.ReadSpeed(-1);
+			Load = sm_st.ReadLoad(-1);
+			Voltage = sm_st.ReadVoltage(-1);
+			Temper = sm_st.ReadTemper(-1);
+			Move = sm_st.ReadMove(-1);
+			Current = sm_st.ReadCurrent(-1);
+			std::cout<<"pos = "<<Pos<<" "; <-----Prints to command prompt current positon value
+			std::cout<<"Speed = "<<Speed<<" ";
+			std::cout<<"Load = "<<Load<<" ";
+			std::cout<<"Voltage = "<<Voltage<<" ";
+			std::cout<<"Temper = "<<Temper<<" ";
+			std::cout<<"Move = "<<Move<<" ";
+			std::cout<<"Current = "<<Current<<std::endl; <---Prints current and ends line
+			
+		}else{
+			std::cout<<"read err"<<std::endl;    <---- If failied to connect to sensor array 
+			sleep(1);     
+		}
+
+
+
+int ID = sm_st.Ping(1); <--- Used to determine if the paramatised serial ID of a motor is in the chain
+	if(ID!=-1){
+		std::cout<<"ID:"<<ID<<std::endl;  
+	}else{
+		std::cout<<"Ping servo ID error!"<<std::endl;
+	}
+WritePosEx(u8 ID, s16 Position, u16 Speed, u8 ACC = 0);  Normal Write Position  (Must have a delay)
+RegWritePosEx(u8 ID, s16 Position, u16 Speed, u8 ACC = 0);  Async write position
+SyncWritePosEx(u8 ID[], u8 IDN, s16 Position[], u16 Speed[], u8 ACC[]); Sync write position
+WheelMode(u8 ID);	Maybe not used? could refer to locking on other models of motor
+WriteSpe(u8 ID, s16 Speed, u8 ACC = 0); Writes speed to motor (used for continous rotation)
+EnableTorque(u8 ID, u8 Enable); Enables torque Control (Maybe not usable, have an experiment)
+unLockEprom(u8 ID);	Unlocks read only memory
+writeByte(current ID, SMSBL_ID, new ID)  Changes ID from current to new
+LockEprom(u8 ID);	Locks read only memory
+CalibrationOfs(u8 ID);	Calibration Function (Unknown use maybe 0 angle sensor?)
+FeedBack(int ID); 	Read if Feedback is possible
+ReadPos(int ID);	Read Position
+ReadSpeed(int ID);	Read Speed
+ReadLoad(int ID);	Read Load 
+ReadVoltage(int ID);	Read Voltge (decaV)
+ReadTemper(int ID);	Read Temperature
+ReadMove(int ID);	Read if moving
+ReadCurrent(int ID);    Read Current
+
+
+
